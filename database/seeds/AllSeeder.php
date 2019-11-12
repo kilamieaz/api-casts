@@ -1,5 +1,6 @@
 <?php
 
+use App\Tag;
 use App\Video;
 use Illuminate\Database\Seeder;
 
@@ -32,5 +33,17 @@ class AllSeeder extends Seeder
         $video3->thumbnail = 'https://vue-screencasts.s3.us-east-2.amazonaws.com/images/video-thumbnails/Thumbnail+-+ES2015+Modules.png';
         $video3->video_url = 'https://vue-screencasts.s3.us-east-2.amazonaws.com/video-files/EmberScreencast+62+-+ES2015+Modules+-+Import%2C+Export.mp4';
         $video3->save();
+
+        $tag = new Tag();
+        $tag->name = 'Javascript';
+        $tag->save();
+
+        $tag2 = new Tag();
+        $tag2->name = 'ES2015';
+        $tag2->save();
+
+        $video->tags()->attach([$tag->id, $tag2->id]);
+        $video2->tags()->attach($tag2->id);
+        $video3->tags()->attach($tag->id);
     }
 }

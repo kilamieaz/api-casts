@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Video extends JsonResource
+class TagResource extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
@@ -17,9 +17,7 @@ class Video extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'description' => $this->description,
-            'thumbnail' => $this->thumbnail,
-            'video_url' => $this->video_url,
+            'videos' => VideoResource::collection($this->whenLoaded('videos')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

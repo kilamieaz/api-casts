@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Video;
+use App\Tag;
 use Illuminate\Http\Request;
+use App\Http\Resources\TagResource;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\VideoResource;
 
-class VideoController extends Controller
+class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +16,8 @@ class VideoController extends Controller
      */
     public function index()
     {
-        return VideoResource::collection(Video::with('tags')->get())
-        ->additional(['message' => 'Videos retrieved successfully',
+        return TagResource::collection(Tag::with('videos')->get())
+        ->additional(['message' => 'Tags retrieved successfully',
         ]);
     }
 
