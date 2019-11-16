@@ -36,10 +36,10 @@ class VideoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Video  $video
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Video $video)
     {
         //
     }
@@ -48,22 +48,24 @@ class VideoController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Video  $video
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Video $video)
     {
-        //
+        $video->update($request->all());
+        return new VideoResource($video);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+      * Remove the specified resource from storage.
+      *
+      * @param  \App\Video  $video
+      * @return \Illuminate\Http\Response
+      */
+    public function destroy(Video $video)
     {
-        //
+        $video->delete();
+        return 204;
     }
 }
