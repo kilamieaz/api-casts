@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Video extends Model
 {
-    protected $guarded = [];
+    protected $fillable = ['name', 'description', 'thumbnail', 'video_url'];
 
     public function tags()
     {
