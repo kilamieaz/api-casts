@@ -1,6 +1,7 @@
 <?php
 
 use App\Tag;
+use App\User;
 use App\Video;
 use Illuminate\Database\Seeder;
 
@@ -13,6 +14,17 @@ class AllSeeder extends Seeder
      */
     public function run()
     {
+        //data user admin
+        $userAdmin = new User();
+        $userAdmin->name = 'Admin';
+        $userAdmin->email = 'im.admin@gmail.com';
+        $userAdmin->email_verified_at = now();
+        $userAdmin->remember_token = Str::random(10);
+        $userAdmin->password = bcrypt('password');
+        $userAdmin->save();
+
+        factory('App\User', 5)->create();
+
         $video = new Video();
         $video->name = 'ES2015 Arrow Functions';
         $video->description = "<p>ES2015 (aka ES6) has some great ways to make your code easier to write and understand. In this episode, we cover two different ways that you can make your code clearer by removing the 'function' keyword.</p>";

@@ -19,6 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     Route::apiResources([
+        'users' => 'API\UserController',
         'videos' => 'API\VideoController',
         'tags' => 'API\TagController'
     ]);
