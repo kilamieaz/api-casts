@@ -5,11 +5,11 @@ namespace App\Http\Controllers\API;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Passport\Http\Controllers\AccessTokenController;
 use Laravel\Passport\TokenRepository;
 use Lcobucci\JWT\Parser as JwtParser;
 use League\OAuth2\Server\AuthorizationServer;
 use Psr\Http\Message\ServerRequestInterface;
-use Laravel\Passport\Http\Controllers\AccessTokenController;
 
 class AuthController extends AccessTokenController
 {
@@ -29,7 +29,18 @@ class AuthController extends AccessTokenController
         $parsedBody['client_id'] = config('services.passport.client_id');
         $parsedBody['client_secret'] = config('services.passport.client_secret');
 
-        return parent::issueToken($request->withParsedBody($parsedBody));
+        $tokenResponse = parent::issueToken($request->withParsedBody($parsedBody));
+        $token = $tokenResponse->getContent();
+
+        // $tokenInfo will contain the usual Laravel Passport token response.
+        $tokenInfo = json_decode($token, true);
+
+        $username = $request->getParsedBody()['username'];
+        $user = User::whereEmail($username)->first();
+        $tokenInfo = collect($tokenInfo);
+        $tokenInfo->put('user', $user);
+
+        return $tokenInfo;
     }
 
     public function register(Request $request)
@@ -53,7 +64,6 @@ class AuthController extends AccessTokenController
         $parsedBody['grant_type'] = 'refresh_token';
         $parsedBody['client_id'] = config('services.passport.client_id');
         $parsedBody['client_secret'] = config('services.passport.client_secret');
-        $parsedBody['refresh_token'] = $request->refreshToken;
 
         return parent::issueToken($request->withParsedBody($parsedBody));
     }

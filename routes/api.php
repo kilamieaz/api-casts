@@ -26,9 +26,7 @@ Route::prefix('v1')->group(function () {
         ]);
         Route::post('logout', 'API\AuthController@logout');
     });
-    Route::prefix('login')->group(function () {
-        Route::post('/', 'API\AuthController@login');
-        Route::post('refresh', 'API\AuthController@refresh');
-    });
-    Route::post('register', 'API\RegisterController@store');
+    Route::post('/login', 'API\AuthController@login');
+    Route::post('/refresh', 'API\AuthController@refresh');
+    Route::post('/register', 'API\AuthController@register');
 });
