@@ -2,44 +2,34 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Passport\Http\Controllers\AccessTokenController;
-use Laravel\Passport\TokenRepository;
-use Lcobucci\JWT\Parser as JwtParser;
-use League\OAuth2\Server\AuthorizationServer;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Support\Facades\Route;
 
-class AuthController extends AccessTokenController
+class AuthController extends Controller
 {
-    public function __construct(
-        AuthorizationServer $server,
-        TokenRepository $tokens,
-        JwtParser $jwt
-    ) {
-        parent::__construct($server, $tokens, $jwt);
-    }
-
-    public function login(ServerRequestInterface $request)
+    public function login(Request $request)
     {
-        $parsedBody = $request->getParsedBody();
+        $request->request->add([
+            'username' => $request->email,
+            'password' => $request->password,
+            'grant_type' => 'password',
+            'client_id' => config('services.passport.client_id'),
+            'client_secret' => config('services.passport.client_secret'),
+            'scope' => '*'
+        ]);
 
-        $parsedBody['grant_type'] = 'password';
-        $parsedBody['client_id'] = config('services.passport.client_id');
-        $parsedBody['client_secret'] = config('services.passport.client_secret');
-
-        $tokenResponse = parent::issueToken($request->withParsedBody($parsedBody));
-        $token = $tokenResponse->getContent();
-
-        // $tokenInfo will contain the usual Laravel Passport token response.
+        $proxy = Request::create(
+            'oauth/token',
+            'POST'
+        );
+        $token = Route::dispatch($proxy)->getContent();
         $tokenInfo = json_decode($token, true);
-
-        $username = $request->getParsedBody()['username'];
-        $user = User::whereEmail($username)->first();
+        $user = User::whereEmail($request->email)->first();
         $tokenInfo = collect($tokenInfo);
         $tokenInfo->put('user', $user);
-
         return $tokenInfo;
     }
 
@@ -57,15 +47,21 @@ class AuthController extends AccessTokenController
         ]);
     }
 
-    public function refresh(ServerRequestInterface $request)
+    public function refresh(Request $request)
     {
-        $parsedBody = $request->getParsedBody();
+        $request->request->add([
+            'refresh_token' => $request->refresh_token,
+            'grant_type' => 'refresh_token',
+            'client_id' => config('services.passport.client_id'),
+            'client_secret' => config('services.passport.client_secret'),
+            'scope' => '*'
+        ]);
 
-        $parsedBody['grant_type'] = 'refresh_token';
-        $parsedBody['client_id'] = config('services.passport.client_id');
-        $parsedBody['client_secret'] = config('services.passport.client_secret');
-
-        return parent::issueToken($request->withParsedBody($parsedBody));
+        $proxy = Request::create(
+            'oauth/token',
+            'POST'
+        );
+        return Route::dispatch($proxy)->getContent();
     }
 
     public function logout()
