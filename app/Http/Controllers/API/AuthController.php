@@ -2,35 +2,49 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
+use Laravel\Passport\TokenRepository;
+use Lcobucci\JWT\Parser as JwtParser;
+use Illuminate\Support\Facades\Cookie;
+use Psr\Http\Message\ServerRequestInterface;
+use League\OAuth2\Server\AuthorizationServer;
+use Laravel\Passport\Http\Controllers\AccessTokenController;
 
-class AuthController extends Controller
+class AuthController extends AccessTokenController
 {
-    public function login(Request $request)
-    {
-        $request->request->add([
-            'username' => $request->email,
-            'password' => $request->password,
-            'grant_type' => 'password',
-            'client_id' => config('services.passport.client_id'),
-            'client_secret' => config('services.passport.client_secret'),
-            'scope' => '*'
-        ]);
+    const REFRESH_TOKEN = 'refresh_token';
 
-        $proxy = Request::create(
-            'oauth/token',
-            'POST'
-        );
-        $token = Route::dispatch($proxy)->getContent();
-        $tokenInfo = json_decode($token, true);
-        $user = User::whereEmail($request->email)->first();
-        $tokenInfo = collect($tokenInfo);
-        $tokenInfo->put('user', $user);
-        return $tokenInfo;
+    public function __construct(
+        AuthorizationServer $server,
+        TokenRepository $tokens,
+        JwtParser $jwt
+    ) {
+        parent::__construct($server, $tokens, $jwt);
+    }
+
+    public function login(ServerRequestInterface $request)
+    {
+        // $tokenInfo will contain the usual Laravel Passport token response.
+        $tokenInfo = $this->attemptLogin('password', $request);
+
+        $email = $request->getParsedBody()['email'];
+        $user = User::whereEmail($email)->first();
+
+        $data = $this->data($tokenInfo, ['user' => $user]);
+
+        return response()->json($data)->withCookie(self::REFRESH_TOKEN, $tokenInfo->refresh_token, 864000, null, null, false, true);
+    }
+
+    public function refresh(ServerRequestInterface $request)
+    {
+        // $tokenInfo will contain the usual Laravel Passport token response.
+        $tokenInfo = $this->attemptRefresh('refresh_token', $request);
+
+        $data = $this->data($tokenInfo);
+
+        return response()->json($data)->withCookie(self::REFRESH_TOKEN, $tokenInfo->refresh_token, 864000, null, null, false, true);
     }
 
     public function register(Request $request)
@@ -47,27 +61,51 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh(Request $request)
-    {
-        $request->request->add([
-            'refresh_token' => $request->refresh_token,
-            'grant_type' => 'refresh_token',
-            'client_id' => config('services.passport.client_id'),
-            'client_secret' => config('services.passport.client_secret'),
-            'scope' => '*'
-        ]);
-
-        $proxy = Request::create(
-            'oauth/token',
-            'POST'
-        );
-        return Route::dispatch($proxy)->getContent();
-    }
-
     public function logout()
     {
         auth()->user()->tokens->each->delete();
 
         return response()->json('Logged out successfully', 200);
+    }
+
+    public function attemptLogin($grantType, $request)
+    {
+        $parsedBody = $request->getParsedBody();
+
+        $parsedBody['username'] = $parsedBody['email'];
+        unset($parsedBody['email']);
+
+        $tokenResponse = $this->proxy($grantType, $parsedBody, $request);
+        return json_decode($tokenResponse->getContent());
+    }
+
+    public function attemptRefresh($grantType, $request)
+    {
+        $parsedBody = $request->getParsedBody();
+
+        $parsedBody['refresh_token'] = Cookie::get(self::REFRESH_TOKEN);
+
+        $tokenResponse = $this->proxy($grantType, $parsedBody, $request);
+        return json_decode($tokenResponse->getContent());
+    }
+
+    public function data($info, array $data = [])
+    {
+        return array_merge($data, [
+            'token_type' => $info->token_type,
+            'expires_in' => $info->expires_in,
+            'access_token' => $info->access_token,
+        ]);
+    }
+
+    public function proxy($grantType, array $parsedBody = [], $request)
+    {
+        $parsedBody = array_merge($parsedBody, [
+            'client_id' => config('services.passport.client_id'),
+            'client_secret' => config('services.passport.client_secret'),
+            'grant_type' => $grantType
+        ]);
+
+        return parent::issueToken($request->withParsedBody($parsedBody));
     }
 }
