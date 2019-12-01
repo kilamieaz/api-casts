@@ -57,5 +57,10 @@ class AllSeeder extends Seeder
         $video->tags()->attach([$tag->id, $tag2->id]);
         $video2->tags()->attach($tag2->id);
         $video3->tags()->attach($tag->id);
+
+        $video = Video::all();
+        User::all()->each(function ($user) use ($video) {
+            $user->playlists()->attach($video);
+        });
     }
 }
