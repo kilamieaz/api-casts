@@ -60,7 +60,7 @@ class AllSeeder extends Seeder
 
         $video = Video::all();
         User::all()->each(function ($user) use ($video) {
-            $user->playlists()->attach($video);
+            $user->playedVideos()->attach($video);
         });
     }
 }

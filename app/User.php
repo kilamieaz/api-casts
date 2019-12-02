@@ -36,8 +36,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function playlists()
+    public function playedVideos()
     {
-        return $this->belongsToMany(Video::class, 'user_playlists');
+        return $this->belongsToMany(Video::class, 'user_played_videos');
     }
 }
