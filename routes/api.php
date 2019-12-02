@@ -18,14 +18,15 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::prefix('v1')->group(function () {
-    Route::middleware(['auth:api'])->group(function () {
-        Route::apiResources([
-            'users' => 'API\UserController',
-            'videos' => 'API\VideoController',
-            'tags' => 'API\TagController'
-        ]);
-        Route::post('logout', 'API\AuthController@logout');
-    });
+    // Route::middleware(['auth:api'])->group(function () {
+    Route::apiResources([
+        'users' => 'API\UserController',
+        'users/{user}/playedVideos' => 'API\UserPlayedVideosController',
+        'videos' => 'API\VideoController',
+        'tags' => 'API\TagController'
+    ]);
+    Route::post('logout', 'API\AuthController@logout');
+    // });
     Route::post('/login', 'API\AuthController@login');
     Route::post('/refresh', 'API\AuthController@refresh');
     Route::post('/register', 'API\AuthController@register');

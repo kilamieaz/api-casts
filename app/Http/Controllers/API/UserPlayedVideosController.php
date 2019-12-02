@@ -5,9 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\User;
+use App\Video;
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class UserPlayedVideosController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,9 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return UserResource::collection(User::with('playedVideos')->get())
-        ->additional(['message' => 'User retrieved successfully',
-        ]);
+        //
     }
 
     /**
@@ -27,9 +26,10 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, User $user)
     {
-        //
+        $user->addPlayedVideos($request->video_id);
+        return new UserResource($user);
     }
 
     /**
@@ -40,7 +40,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user);
+        //
     }
 
     /**
@@ -61,8 +61,9 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(User $user, Video $playedVideo)
     {
-        //
+        $user->removePlayedVideos($playedVideo);
+        return response()->json('successfully remove frome played videos', 204);
     }
 }

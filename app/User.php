@@ -40,4 +40,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Video::class, 'user_played_videos');
     }
+
+    public function addPlayedVideos($video)
+    {
+        return $this->playedVideos()->attach($video);
+    }
+
+    public function removePlayedVideos($video)
+    {
+        return $this->playedVideos()->detach($video->id);
+    }
 }
