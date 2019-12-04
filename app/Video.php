@@ -12,4 +12,14 @@ class Video extends Model
     {
         return $this->belongsToMany(Tag::class, 'tag_video');
     }
+
+    public function connectTagToVideo($tagId)
+    {
+        return $this->tags()->attach($tagId);
+    }
+
+    public function disconnectTagFromVideo($tagId)
+    {
+        return $this->tags()->detach($tagId);
+    }
 }

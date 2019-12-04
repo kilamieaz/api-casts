@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use App\User;
+use App\Http\Resources\VideoResource;
 use App\Video;
+use App\Tag;
 use Illuminate\Http\Request;
 
-class UserPlayedVideosController extends Controller
+class VideoTagsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -26,19 +26,19 @@ class UserPlayedVideosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, User $user)
+    public function store(Request $request, Video $video)
     {
-        $user->addPlayedVideos($request->video_id);
-        return new UserResource($user);
+        $video->connectTagToVideo($request->tag_id);
+        return new VideoResource($video->with('tags')->first());
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\User  $user
+     * @param  \App\Video  $video
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show(Video $video)
     {
         //
     }
@@ -47,10 +47,10 @@ class UserPlayedVideosController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\User  $user
+     * @param  \App\Video  $video
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, Video $video)
     {
         //
     }
@@ -58,12 +58,12 @@ class UserPlayedVideosController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\User  $user
+     * @param  \App\Video  $video
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user, Video $playedVideo)
+    public function destroy(Video $video, Tag $tag)
     {
-        $user->removePlayedVideos($playedVideo->id);
+        $video->disconnectTagFromVideo($tag->id);
         return response()->json('successfully remove frome played videos', 204);
     }
 }

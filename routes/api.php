@@ -22,6 +22,7 @@ Route::prefix('v1')->group(function () {
     Route::apiResources([
         'users' => 'API\UserController',
         'users/{user}/playedVideos' => 'API\UserPlayedVideosController',
+        'videos/{video}/tags' => 'API\VideoTagsController',
         'videos' => 'API\VideoController',
         'tags' => 'API\TagController'
     ]);
