@@ -29,7 +29,7 @@ class VideoTagsController extends Controller
     public function store(Request $request, Video $video)
     {
         $video->connectTagToVideo($request->tag_id);
-        return new VideoResource($video->with('tags')->first());
+        return new VideoResource($video->load('tags'));
     }
 
     /**
