@@ -13,12 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::prefix('v1')->group(function () {
-    // Route::middleware(['auth:api'])->group(function () {
+    Route::middleware('auth:api')->get('/user', function (Request $request) {
+        return $request->user();
+    });
+
     Route::apiResources([
         'users' => 'API\UserController',
         'users/{user}/playedVideos' => 'API\UserPlayedVideosController',
@@ -26,8 +25,9 @@ Route::prefix('v1')->group(function () {
         'videos' => 'API\VideoController',
         'tags' => 'API\TagController'
     ]);
-    Route::post('logout', 'API\AuthController@logout');
-    // });
+    Route::middleware(['auth:api'])->group(function () {
+        Route::post('logout', 'API\AuthController@logout');
+    });
     Route::post('/login', 'API\AuthController@login');
     Route::post('/refresh', 'API\AuthController@refresh');
     Route::post('/register', 'API\AuthController@register');

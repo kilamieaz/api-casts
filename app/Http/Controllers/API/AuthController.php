@@ -61,11 +61,11 @@ class AuthController extends AccessTokenController
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        auth()->user()->tokens->each->delete();
+        $request->user()->tokens->each->delete();
 
-        return response()->json('Logged out successfully', 200);
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
     public function attemptLogin($grantType, $request)

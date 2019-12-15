@@ -41,7 +41,7 @@ class VideoController extends Controller
      */
     public function show(Video $video)
     {
-        //
+        return new VideoResource($video->load('tags'));
     }
 
     /**
