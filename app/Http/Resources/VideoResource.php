@@ -21,6 +21,9 @@ class VideoResource extends JsonResource
             'thumbnail' => $this->thumbnail,
             'video_url' => $this->video_url,
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'duration' => $this->duration,
+            'code_summary' => $this->code_summary,
+            'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

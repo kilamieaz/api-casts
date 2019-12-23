@@ -19,6 +19,9 @@ class CreateVideosTable extends Migration
             $table->text('description');
             $table->text('thumbnail');
             $table->text('video_url');
+            $table->integer('duration')->nullable();
+            $table->text('code_summary')->nullable();
+            $table->dateTimeTz('published_at')->nullable();
             $table->timestamps();
         });
     }
