@@ -64,6 +64,6 @@ class VideoTagsController extends Controller
     public function destroy(Video $video, Tag $tag)
     {
         $video->disconnectTagFromVideo($tag->id);
-        return response()->json('successfully remove frome played videos', 204);
+        return response()->json(['message' => 'successfully remove tag from video'], 204);
     }
 }

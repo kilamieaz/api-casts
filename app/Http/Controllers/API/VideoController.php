@@ -66,6 +66,6 @@ class VideoController extends Controller
     public function destroy(Video $video)
     {
         $video->delete();
-        return 204;
+        return response()->json(['message' => 'successfully remove video'], 204);
     }
 }

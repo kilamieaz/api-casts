@@ -64,6 +64,6 @@ class UserPlayedVideosController extends Controller
     public function destroy(User $user, Video $playedVideo)
     {
         $user->removePlayedVideos($playedVideo->id);
-        return response()->json('successfully remove frome played videos', 204);
+        return response()->json(['message' => 'successfully remove from played videos'], 204);
     }
 }
