@@ -15,10 +15,10 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => $this->password,
+            'id' => (int) $this->id,
+            'name' => (string) $this->name,
+            'email' => (string) $this->email,
+            // 'password' => (string) $this->password,
             'played_video_ids' => $this->playedVideos()->pluck('video_id'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

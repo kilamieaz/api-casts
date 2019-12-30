@@ -15,14 +15,14 @@ class VideoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
-            'thumbnail' => $this->thumbnail,
-            'video_url' => $this->video_url,
+            'id' => (int) $this->id,
+            'name' => (string) $this->name,
+            'description' => (string) $this->description,
+            'thumbnail' => (string) $this->thumbnail,
+            'video_url' => (string) $this->video_url,
             'tags' => TagResource::collection($this->whenLoaded('tags')),
-            'duration' => $this->duration,
-            'code_summary' => $this->code_summary,
+            'duration' => (int) $this->duration,
+            'code_summary' => (string) $this->code_summary,
             'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
