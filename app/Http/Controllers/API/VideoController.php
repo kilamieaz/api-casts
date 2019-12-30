@@ -14,9 +14,21 @@ class VideoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return VideoResource::collection(Video::with('tags')->get())
+        $requestedEmbeds = explode(',', $request->include); //['tags', 'etc']
+
+        // Left is relationship names. Right is include names.
+        // Avoids exposing relationships and whatever not directly set
+        $possibleRelationships = [
+            'tags' => 'tags',
+        ];
+
+        // Check for potential ORM relationships, and convert from generic "include" names
+        $eagerLoad = array_keys(array_intersect($possibleRelationships, $requestedEmbeds));
+        $videos = Video::with($eagerLoad)->get();
+
+        return VideoResource::collection($videos)
         ->additional(['message' => 'Videos retrieved successfully',
         ]);
     }
