@@ -5,10 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Video;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Screencast\Traits\BaseApi;
 use App\Http\Resources\VideoResource;
 
 class VideoController extends Controller
 {
+    use BaseApi;
+
     /**
      * Display a listing of the resource.
      *
@@ -16,18 +19,12 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
-        $requestedEmbeds = explode(',', $request->include); //['tags', 'etc']
-
         // Left is relationship names. Right is include names.
         // Avoids exposing relationships and whatever not directly set
         $possibleRelationships = [
             'tags' => 'tags',
         ];
-
-        // Check for potential ORM relationships, and convert from generic "include" names
-        $eagerLoad = array_keys(array_intersect($possibleRelationships, $requestedEmbeds));
-        $videos = Video::with($eagerLoad)->get();
-
+        $videos = $this->nestingFlexibility($request, new Video, $possibleRelationships);
         return VideoResource::collection($videos)
         ->additional(['message' => 'Videos retrieved successfully',
         ]);
