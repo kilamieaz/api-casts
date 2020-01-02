@@ -5,18 +5,25 @@ namespace App\Http\Controllers\API;
 use App\Tag;
 use Illuminate\Http\Request;
 use App\Http\Resources\TagResource;
+use App\Screencast\Traits\BaseApi;
 use App\Http\Controllers\Controller;
 
 class TagController extends Controller
 {
+    use BaseApi;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return TagResource::collection(Tag::with('videos')->get())
+        $possibleRelationships = [
+            'videos' => 'videos',
+        ];
+        $tags = $this->nestingFlexibility($request, new Tag, $possibleRelationships);
+        return TagResource::collection($tags)
         ->additional(['message' => 'Tags retrieved successfully',
         ]);
     }

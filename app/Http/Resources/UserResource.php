@@ -14,12 +14,13 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        $videoResource = VideoResource::collection($this->whenLoaded('playedVideos'));
         return [
             'id' => (int) $this->id,
             'name' => (string) $this->name,
             'email' => (string) $this->email,
             // 'password' => (string) $this->password,
-            'played_video_ids' => $this->whenLoaded('playedVideos') ? $this->playedVideos()->pluck('video_id') : null,
+            'played_video_ids' => $videoResource->collection == null ? $videoResource : $this->playedVideos()->pluck('video_id'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

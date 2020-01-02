@@ -5,18 +5,27 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\User;
+use App\Screencast\Traits\BaseApi;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    use BaseApi;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return UserResource::collection(User::with('playedVideos')->get())
+        // Left is relationship names. Right is include names.
+        // Avoids exposing relationships and whatever not directly set
+        $possibleRelationships = [
+            'playedVideos' => 'playedVideos',
+        ];
+        $users = $this->nestingFlexibility($request, new User, $possibleRelationships);
+        return UserResource::collection($users)
         ->additional(['message' => 'User retrieved successfully',
         ]);
     }
