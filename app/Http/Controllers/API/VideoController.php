@@ -7,10 +7,19 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Screencast\Traits\BaseApi;
 use App\Http\Resources\VideoResource;
+use App\Screencast\Repositories\Contracts\VideoInterface;
 
 class VideoController extends Controller
 {
     use BaseApi;
+
+    protected $video = null;
+
+    // VideoInterface is the interface
+    public function __construct(VideoInterface $video)
+    {
+        $this->video = $video;
+    }
 
     /**
      * Display a listing of the resource.
@@ -24,7 +33,7 @@ class VideoController extends Controller
         $possibleRelationships = [
             'tags' => 'tags',
         ];
-        $videos = $this->nestingFlexibility($request, new Video, $possibleRelationships);
+        $videos = $this->nestingFlexibility($request, $this->video, $possibleRelationships);
         return VideoResource::collection($videos)
         ->additional(['message' => 'Videos retrieved successfully',
         ]);
@@ -38,7 +47,8 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
-        $video = Video::create($request->all());
+        // create record and pass in only fields that are fillable
+        $video = $this->video->store($request->only($this->video->getModel()->fillable));
         return new VideoResource($video);
     }
 
@@ -50,7 +60,7 @@ class VideoController extends Controller
      */
     public function show(Video $video)
     {
-        return new VideoResource($video->load('tags'));
+        return new VideoResource($this->video->show($video->load('tags')));
     }
 
     /**
@@ -62,8 +72,8 @@ class VideoController extends Controller
      */
     public function update(Request $request, Video $video)
     {
-        $video->update($request->only($video->fillable));
-        return new VideoResource($video);
+        $this->video->update($request->only($this->video->getModel()->fillable), $video);
+        return new VideoResource($video->refersh());
     }
 
     /**
@@ -74,7 +84,7 @@ class VideoController extends Controller
       */
     public function destroy(Video $video)
     {
-        $video->delete();
+        $this->video->delete($video);
         return response()->json(['message' => 'successfully remove video'], 204);
     }
 }

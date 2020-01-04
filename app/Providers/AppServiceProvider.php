@@ -14,7 +14,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(
+            'App\Screencast\Repositories\Contracts\VideoInterface',
+            'App\Screencast\Repositories\Eloquents\VideoEloquent'
+        );
     }
 
     /**

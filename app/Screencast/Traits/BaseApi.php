@@ -10,6 +10,6 @@ trait BaseApi
 
         // Check for potential ORM relationships, and convert from generic "include" names
         $eagerLoad = array_keys(array_intersect($possibleRelationships, $requestedEmbeds));
-        return $model::with($eagerLoad)->get();
+        return $model->with($eagerLoad)->get();
     }
 }
