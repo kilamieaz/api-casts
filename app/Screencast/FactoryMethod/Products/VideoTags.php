@@ -4,7 +4,7 @@ namespace App\Screencast\FactoryMethod\Products;
 
 use App\Screencast\FactoryMethod\Contracts\PivotInterface;
 
-class VideoTag implements PivotInterface
+class VideoTags implements PivotInterface
 {
     private $model;
     private $id;
