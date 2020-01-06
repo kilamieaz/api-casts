@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\VideoResource;
+use App\Screencast\FactoryMethod\Supports\VideoTagConnector;
+use App\Screencast\FactoryMethod\Used\PivotRelationship;
 use App\Video;
 use App\Tag;
 use Illuminate\Http\Request;
@@ -28,7 +30,8 @@ class VideoTagsController extends Controller
      */
     public function store(Request $request, Video $video)
     {
-        $video->connectTagToVideo($request->tag_id);
+        // $video->connectTagToVideo($request->tag_id);
+        PivotRelationship::connecting(new VideoTagConnector($video, $request->tag_id));
         return new VideoResource($video->load('tags'));
     }
 
@@ -63,7 +66,8 @@ class VideoTagsController extends Controller
      */
     public function destroy(Video $video, Tag $tag)
     {
-        $video->disconnectTagFromVideo($tag->id);
+        // $video->disconnectTagFromVideo($tag->id);
+        PivotRelationship::disconnecting(new VideoTagConnector($video, $tag->id));
         return response()->json(['message' => 'successfully remove tag from video'], 204);
     }
 }
