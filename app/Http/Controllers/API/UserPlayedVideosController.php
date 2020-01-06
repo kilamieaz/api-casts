@@ -7,6 +7,8 @@ use App\Http\Resources\UserResource;
 use App\User;
 use App\Video;
 use Illuminate\Http\Request;
+use App\Screencast\FactoryMethod\Used\PivotRelationship;
+use App\Screencast\FactoryMethod\Products\UserPlayedVideos;
 
 class UserPlayedVideosController extends Controller
 {
@@ -28,8 +30,8 @@ class UserPlayedVideosController extends Controller
      */
     public function store(Request $request, User $user)
     {
-        $user->addPlayedVideos($request->video_id);
-        return new UserResource($user);
+        PivotRelationship::connecting(new UserPlayedVideos($user, $request->video_id));
+        return new UserResource($user->load('playedVideos'));
     }
 
     /**
@@ -63,7 +65,7 @@ class UserPlayedVideosController extends Controller
      */
     public function destroy(User $user, Video $playedVideo)
     {
-        $user->removePlayedVideos($playedVideo->id);
+        PivotRelationship::disconnecting(new UserPlayedVideos($user, $playedVideo->id));
         return response()->json(['message' => 'successfully remove from played videos'], 204);
     }
 }
