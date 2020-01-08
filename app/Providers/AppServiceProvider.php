@@ -18,6 +18,11 @@ class AppServiceProvider extends ServiceProvider
             'App\Screencast\Repositories\Contracts\VideoInterface',
             'App\Screencast\Repositories\Eloquents\VideoEloquent'
         );
+
+        $this->app->bind(
+            'App\Screencast\Repositories\Contracts\TagInterface',
+            'App\Screencast\Repositories\Eloquents\TagEloquent'
+        );
     }
 
     /**

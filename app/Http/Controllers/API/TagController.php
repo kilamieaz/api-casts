@@ -7,10 +7,19 @@ use Illuminate\Http\Request;
 use App\Http\Resources\TagResource;
 use App\Screencast\Traits\BaseApi;
 use App\Http\Controllers\Controller;
+use App\Screencast\Repositories\Contracts\TagInterface;
 
 class TagController extends Controller
 {
     use BaseApi;
+
+    protected $tag = null;
+
+    // TagInterface is the interface
+    public function __construct(TagInterface $tag)
+    {
+        $this->tag = $tag;
+    }
 
     /**
      * Display a listing of the resource.
@@ -22,7 +31,7 @@ class TagController extends Controller
         $possibleRelationships = [
             'videos' => 'videos',
         ];
-        $tags = $this->nestingFlexibility($request, new Tag, $possibleRelationships);
+        $tags = $this->nestingFlexibility($request, $this->tag, $possibleRelationships);
         return TagResource::collection($tags)
         ->additional(['message' => 'Tags retrieved successfully',
         ]);
@@ -36,43 +45,43 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        $tag = Tag::create($request->all());
+        $tag = $this->tag->store($request->only($this->tag->getModel()->fillable));
         return new TagResource($tag->load('videos'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Tag  $video
+     * @param  \App\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function show(Tag $tag)
     {
-        return new TagResource($tag->load('videos'));
+        return new TagResource($this->tag->show($tag->load('videos')));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Tag  $video
+     * @param  \App\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Tag $tag)
     {
-        $tag->update($request->only($tag->fillable));
+        $this->tag->update($request->only($tag->fillable), $tag);
         return new TagResource($tag);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Tag  $video
+     * @param  \App\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function destroy(Tag $tag)
     {
-        $tag->delete();
+        $this->tag->delete($tag);
         return response()->json(['message' => 'successfully remove tag'], 204);
     }
 }
