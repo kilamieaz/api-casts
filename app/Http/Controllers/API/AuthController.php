@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use Psr\Http\Message\ServerRequestInterface;
 use League\OAuth2\Server\AuthorizationServer;
 use Laravel\Passport\Http\Controllers\AccessTokenController;
+use App\Http\Resources\UserResource;
 
 class AuthController extends AccessTokenController
 {
@@ -30,7 +31,9 @@ class AuthController extends AccessTokenController
         $tokenInfo = $this->attemptLogin('password', $request);
 
         $email = $request->getParsedBody()['email'];
-        $user = User::whereEmail($email)->first();
+
+        $user = User::with('playedVideos')->whereEmail($email)->first();
+        $user = new UserResource($user);
 
         $data = $this->data($tokenInfo, ['user' => $user]);
 

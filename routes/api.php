@@ -16,7 +16,7 @@ use App\Http\Resources\UserResource;
 
 Route::prefix('v1')->group(function () {
     Route::middleware('auth:api')->get('/user', function (Request $request) {
-        return new UserResource($request->user());
+        return new UserResource($request->user()->load('playedVideos'));
     });
 
     Route::apiResources([
