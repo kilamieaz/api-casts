@@ -73,7 +73,7 @@ class VideoController extends Controller
     public function update(Request $request, Video $video)
     {
         $this->video->update($request->only($this->video->getModel()->fillable), $video);
-        return new VideoResource($video->refersh());
+        return new VideoResource($video->refresh());
     }
 
     /**
